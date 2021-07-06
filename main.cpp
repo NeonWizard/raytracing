@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include "color.h"
+#include "vec3.h"
+
 int main() {
   // -- Image
   const int image_width = 256;
@@ -11,16 +14,16 @@ int main() {
 
   // Body
   for (int y = image_height-1; y >= 0; --y) {
+    std::cerr << "\rScanlines remaining: " << y << ' ' << std::flush;
     for (int x = 0; x < image_width; ++x) {
-      double r = double(x) / (image_width-1);
-      double g = double(y) / (image_height-1);
-      double b = 0.25;
-
-      int ir = static_cast<int>(255.999 * r);
-      int ig = static_cast<int>(255.999 * g);
-      int ib = static_cast<int>(255.999 * b);
-
-      std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+      color pixel_color(
+        double(x) / (image_width-1),
+        double(y) / (image_height-1),
+        0.25
+      );
+      write_color(std::cout, pixel_color);
     }
   }
+
+  std::cerr << "\nDone.\n";
 }
