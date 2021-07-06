@@ -11,6 +11,7 @@ all: main
 
 run: main
 	./main > image.ppm
+	convert image.ppm "images/$$(date +'%Y-%m-%d %H-%M:%S').png"
 
 main: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
