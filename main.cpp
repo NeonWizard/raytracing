@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "helper.h"
+#include "utility.h"
 #include "color.h"
 #include "hittable_list.h"
 #include "sphere.h"
