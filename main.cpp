@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "vec3.h"
+#include "ray.h"
 
 int main() {
   // -- Image

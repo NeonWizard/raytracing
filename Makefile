@@ -16,7 +16,7 @@ run: main
 main: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-main.o: main.cpp color.h vec3.h
+main.o: main.cpp color.h vec3.h ray.h
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
