@@ -17,9 +17,9 @@ void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
   b *= scale;
 
   // Gamma correct for gamma=2.0
-  // r = sqrt(r);
-  // g = sqrt(g);
-  // b = sqrt(b);
+  r = sqrt(r);
+  g = sqrt(g);
+  b = sqrt(b);
 
   // Write the translate [0,255] value of each color component
   out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
