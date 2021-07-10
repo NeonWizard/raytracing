@@ -4,7 +4,7 @@
 # $^ : all dependencies
 # $< : first dependency
 
-CXXFLAGS := -Wall -Wno-missing-braces -Werror -g -std=c++11
+CXXFLAGS := -Wall -Wno-missing-braces -Werror -g -std=c++11 -O3 -march=native
 CXX := g++
 
 all: main
