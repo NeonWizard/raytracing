@@ -13,6 +13,8 @@ class sphere : public hittable {
     virtual bool hit(
       const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
+    virtual bool bounding_box(double time0, double time1, aabb &output_box) const override;
+
   public:
     point3 center;
     double radius;
@@ -42,6 +44,15 @@ bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) cons
   vec3 outward_normal = (rec.p - center) / radius;
   rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mat_ptr;
+
+  return true;
+}
+
+bool sphere::bounding_box(double time0, double time1, aabb &output_box) const {
+  output_box = aabb(
+    center - vec3(radius, radius, radius),
+    center + vec3(radius, radius, radius)
+  );
 
   return true;
 }
