@@ -16,7 +16,7 @@ run: main
 main: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-main.o: main.cpp color.h vec3.h ray.h hittable.h sphere.h hittable_list.h utility.h camera.h material.h moving_sphere.h aabb.h bvh.h texture.h
+main.o: main.cpp color.h vec3.h ray.h hittable.h sphere.h hittable_list.h utility.h camera.h material.h moving_sphere.h aabb.h bvh.h texture.h perlin.h
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
