@@ -16,7 +16,12 @@ run: main
 main: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-main.o: main.cpp color.h vec3.h ray.h hittable.h sphere.h hittable_list.h utility.h camera.h material.h moving_sphere.h aabb.h bvh.h texture.h perlin.h rtw_stb_image.h aarect.h
+utility: color.h vec3.h ray.h utility.h camera.h rtw_stb_image.h
+hittables: hittable.h hittable_list.h sphere.h moving_sphere.h aarect.h bvh.h
+surfaces: material.h texture.h perlin.h
+misc: aabb.h
+
+main.o: main.cpp utility hittables surfaces misc
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
