@@ -19,7 +19,7 @@ main: main.o
 utility: color.h vec3.h ray.h utility.h camera.h rtw_stb_image.h
 hittables: hittable.h hittable_list.h sphere.h moving_sphere.h aarect.h bvh.h box.h
 surfaces: material.h texture.h perlin.h
-misc: aabb.h
+misc: aabb.h constant_medium.h
 
 main.o: main.cpp utility hittables surfaces misc
 	$(CXX) $(CXXFLAGS) -c $<
