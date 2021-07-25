@@ -13,8 +13,9 @@
 #include "box.h"
 #include "constant_medium.h"
 #include "bvh.h"
+#include "pdf.h"
 
-color ray_color(const ray &r, const color &background, const hittable &world, int depth) {
+color ray_color(const ray &r, const color &background, const hittable &world, shared_ptr<hittable> &lights, int depth) {
   hit_record rec;
 
   // If we've exceeded the ray bounce limit, no more light is gathered
@@ -30,30 +31,23 @@ color ray_color(const ray &r, const color &background, const hittable &world, in
   ray scattered;
   color attenuation;
   color emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
-  double pdf;
+  double pdf_val;
   color albedo;
 
-  if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf)) {
+  if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf_val)) {
     return emitted;
   }
 
-  auto on_light = point3(random_double(213,343), 554, random_double(227,332));
-  auto to_light = on_light - rec.p;
-  auto distance_squared = to_light.length_squared();
-  to_light = unit_vector(to_light);
+  auto p0 = make_shared<hittable_pdf>(lights, rec.p);
+  auto p1 = make_shared<cosine_pdf>(rec.normal);
+  mixture_pdf mixed_pdf(p0, p1);
 
-  if (dot(to_light, rec.normal) < 0)
-    return emitted;
+  scattered = ray(rec.p, mixed_pdf.generate(), r.time());
+  pdf_val = mixed_pdf.value(scattered.direction());
 
-  double light_area = (343-213)*(332-227);
-  auto light_cosine = fabs(to_light.y());
-  if (light_cosine < 0.000001)
-    return emitted;
-
-  pdf = distance_squared / (light_cosine * light_area);
-  scattered = ray(rec.p, to_light, r.time());
-
-  return emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered) * ray_color(scattered, background, world, depth-1) / pdf;
+  return emitted
+        + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered)
+                 * ray_color(scattered, background, world, lights, depth-1) / pdf_val;
 }
 
 hittable_list random_scene() {
@@ -362,6 +356,8 @@ int main() {
       break;
   }
 
+  shared_ptr<hittable> lights = make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
+
   // -- Camera
   vec3 vup(0, 1, 0);
   auto dist_to_focus = 10.0;
@@ -382,7 +378,7 @@ int main() {
         auto px = (x + random_double()) / (image_width-1);
         auto py = (y + random_double()) / (image_height-1);
         ray r = cam.get_ray(px, py);
-        pixel_color += ray_color(r, background, world, max_depth);
+        pixel_color += ray_color(r, background, world, lights, max_depth);
       }
       write_color(std::cout, pixel_color, samples_per_pixel);
     }
