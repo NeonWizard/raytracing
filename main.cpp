@@ -28,26 +28,21 @@ color ray_color(const ray &r, const color &background, const hittable &world, sh
     return background;
   }
 
-  ray scattered;
-  color attenuation;
+  scatter_record srec;
   color emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
-  double pdf_val;
-  color albedo;
-
-  if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf_val)) {
+  if (!rec.mat_ptr->scatter(r, rec, srec)) {
     return emitted;
   }
 
-  auto p0 = make_shared<hittable_pdf>(lights, rec.p);
-  auto p1 = make_shared<cosine_pdf>(rec.normal);
-  mixture_pdf mixed_pdf(p0, p1);
+  auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
+  mixture_pdf p(light_ptr, srec.pdf_ptr);
 
-  scattered = ray(rec.p, mixed_pdf.generate(), r.time());
-  pdf_val = mixed_pdf.value(scattered.direction());
+  ray scattered = ray(rec.p, p.generate(), r.time());
+  auto pdf_val = p.value(scattered.direction());
 
   return emitted
-        + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered)
-                 * ray_color(scattered, background, world, lights, depth-1) / pdf_val;
+      + srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered)
+                         * ray_color(scattered, background, world, lights, depth-1) / pdf_val;
 }
 
 hittable_list cornell_box() {
@@ -111,6 +106,10 @@ int main() {
   }
 
   shared_ptr<hittable> lights = make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
+
+  // auto lights = make_shared<hittable_list>();
+  // lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
+  // lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
 
   // -- Camera
   vec3 vup(0, 1, 0);
