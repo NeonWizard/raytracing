@@ -34,6 +34,10 @@ color ray_color(const ray &r, const color &background, const hittable &world, sh
     return emitted;
   }
 
+  if (srec.is_specular) {
+    return srec.attenuation * ray_color(srec.specular_ray, background, world, lights, depth-1);
+  }
+
   auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
   mixture_pdf p(light_ptr, srec.pdf_ptr);
 
@@ -60,7 +64,9 @@ hittable_list cornell_box() {
   objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
   objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
-  shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
+  shared_ptr<material> aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
+  shared_ptr<hittable> box1 = make_shared<box>(point3(0,0,0), point3(165,330,165), aluminum);
+  // shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
   box1 = make_shared<rotate_y>(box1, 15);
   box1 = make_shared<translate>(box1, vec3(265,0,295));
   objects.add(box1);
