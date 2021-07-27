@@ -15,7 +15,7 @@
 #include "bvh.h"
 #include "pdf.h"
 
-color ray_color(const ray &r, const color &background, const hittable &world, shared_ptr<hittable> &lights, int depth) {
+color ray_color(const ray &r, const color &background, const hittable &world, shared_ptr<hittable> lights, int depth) {
   hit_record rec;
 
   // If we've exceeded the ray bounce limit, no more light is gathered
@@ -64,12 +64,16 @@ hittable_list cornell_box() {
   objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
   objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
-  shared_ptr<material> aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
-  shared_ptr<hittable> box1 = make_shared<box>(point3(0,0,0), point3(165,330,165), aluminum);
-  // shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
+  // -- Object #1
+
+  // shared_ptr<material> aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
+  // shared_ptr<hittable> box1 = make_shared<box>(point3(0,0,0), point3(165, 330, 165), aluminum);
+  shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
   box1 = make_shared<rotate_y>(box1, 15);
-  box1 = make_shared<translate>(box1, vec3(265,0,295));
+  box1 = make_shared<translate>(box1, vec3(265, 0, 295));
   objects.add(box1);
+
+  // -- Object #2
 
   // shared_ptr<hittable> box2 = make_shared<box>(point3(0,0,0), point3(165,165,165), white);
   // box2 = make_shared<rotate_y>(box2, -18);
@@ -77,7 +81,7 @@ hittable_list cornell_box() {
   // objects.add(box2);
 
   auto glass = make_shared<dielectric>(1.5);
-  objects.add(make_shared<sphere>(point3(190,90,190), 90 , glass));
+  objects.add(make_shared<sphere>(point3(190, 90, 190), 90, glass));
 
   return objects;
 }
@@ -114,11 +118,12 @@ int main() {
       break;
   }
 
-  shared_ptr<hittable> lights = make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
+  // shared_ptr<hittable> lights = make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
+  // shared_ptr<hittable> lights = make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>());
 
-  // auto lights = make_shared<hittable_list>();
-  // lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
-  // lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
+  auto lights = make_shared<hittable_list>();
+  lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
+  lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
 
   // -- Camera
   vec3 vup(0, 1, 0);

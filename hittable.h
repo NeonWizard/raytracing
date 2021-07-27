@@ -26,11 +26,11 @@ class hittable {
   public:
     virtual bool hit(const ray &r, double t_min, double t_max, hit_record &rec) const = 0;
     virtual bool bounding_box(double time0, double time1, aabb &output_box) const = 0;
-    virtual double pdf_value(const point3& o, const vec3& v) const {
+    virtual double pdf_value(const point3 &o, const vec3 &v) const {
       return 0.0;
     }
 
-    virtual vec3 random(const vec3& o) const {
+    virtual vec3 random(const vec3 &o) const {
       return vec3(1, 0, 0);
     }
 };
@@ -50,7 +50,7 @@ class translate : public hittable {
     vec3 offset;
 };
 
-bool translate::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+bool translate::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
   ray moved_r(r.origin() - offset, r.direction(), r.time());
   if (!ptr->hit(moved_r, t_min, t_max, rec))
     return false;
@@ -61,7 +61,7 @@ bool translate::hit(const ray& r, double t_min, double t_max, hit_record& rec) c
   return true;
 }
 
-bool translate::bounding_box(double time0, double time1, aabb& output_box) const {
+bool translate::bounding_box(double time0, double time1, aabb &output_box) const {
   if (!ptr->bounding_box(time0, time1, output_box))
     return false;
 
@@ -77,9 +77,9 @@ class rotate_y : public hittable {
     rotate_y(shared_ptr<hittable> p, double angle);
 
     virtual bool hit(
-      const ray& r, double t_min, double t_max, hit_record& rec) const override;
+      const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
-    virtual bool bounding_box(double time0, double time1, aabb& output_box) const override {
+    virtual bool bounding_box(double time0, double time1, aabb &output_box) const override {
       output_box = bbox;
       return hasbox;
     }
@@ -124,7 +124,7 @@ rotate_y::rotate_y(shared_ptr<hittable> p, double angle) : ptr(p) {
   bbox = aabb(min, max);
 }
 
-bool rotate_y::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+bool rotate_y::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
   auto origin = r.origin();
   auto direction = r.direction();
 
@@ -159,7 +159,7 @@ class flip_face : public hittable {
     flip_face(shared_ptr<hittable> p) : ptr(p) {}
 
     virtual bool hit(
-      const ray& r, double t_min, double t_max, hit_record& rec) const override {
+      const ray &r, double t_min, double t_max, hit_record &rec) const override {
 
       if (!ptr->hit(r, t_min, t_max, rec))
         return false;
@@ -168,7 +168,7 @@ class flip_face : public hittable {
       return true;
     }
 
-    virtual bool bounding_box(double time0, double time1, aabb& output_box) const override {
+    virtual bool bounding_box(double time0, double time1, aabb &output_box) const override {
       return ptr->bounding_box(time0, time1, output_box);
     }
 

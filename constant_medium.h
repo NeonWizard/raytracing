@@ -21,9 +21,9 @@ class constant_medium : public hittable {
       {}
 
     virtual bool hit(
-      const ray& r, double t_min, double t_max, hit_record& rec) const override;
+      const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
-    virtual bool bounding_box(double time0, double time1, aabb& output_box) const override {
+    virtual bool bounding_box(double time0, double time1, aabb &output_box) const override {
       return boundary->bounding_box(time0, time1, output_box);
     }
 
@@ -33,7 +33,7 @@ class constant_medium : public hittable {
     shared_ptr<material> phase_function;
 };
 
-bool constant_medium::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+bool constant_medium::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
   // Print occasional samples when debugging. To enable, set enableDebug true
   const bool enableDebug = false;
   const bool debugging = enableDebug && random_double() < 0.00001;
