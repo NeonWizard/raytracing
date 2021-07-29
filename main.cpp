@@ -121,6 +121,59 @@ hittable_list three_balls() {
   return objects;
 }
 
+hittable_list eight_balls() {
+  hittable_list objects;
+
+  auto ground = make_shared<lambertian>(color(0.96, 0.96, 0.96));
+  objects.add(make_shared<box>(point3(-1200, 0, -1200), point3(1200, 0, 0), ground));
+  objects.add(make_shared<box>(point3(-1200, 0, -1200), point3(1200, 1000, -1200), ground));
+
+  auto light = make_shared<diffuse_light>(color(150, 150, 150));
+  objects.add(make_shared<sphere>(point3(-1200, 1000, -500), 100, light));
+
+  auto glass = make_shared<dielectric>(1.5);
+
+  const int main_sphere_r = 80;
+  const int sec_sphere_r = 40;
+
+  auto sphere1_mat = make_shared<lambertian>(color(.93, .93, .93));
+  objects.add(make_shared<sphere>(point3(-300, main_sphere_r, -750), main_sphere_r, sphere1_mat));
+
+  auto red = make_shared<lambertian>(color(1, 0, 0));
+  objects.add(make_shared<sphere>(point3(
+    -300, sec_sphere_r, -750+main_sphere_r+sec_sphere_r+10
+  ), sec_sphere_r, red));
+
+  auto left_sphere_mat = make_shared<lambertian>(color(1, 1, 1));
+  objects.add(make_shared<sphere>(point3(
+    -150, sec_sphere_r, -750+main_sphere_r
+  ), sec_sphere_r, left_sphere_mat));
+
+  auto sphere2_mat = make_shared<lambertian>(color(.97, .97, .97));
+  objects.add(make_shared<sphere>(point3(0, main_sphere_r, -750), main_sphere_r, glass));
+  objects.add(make_shared<sphere>(point3(0, main_sphere_r, -750), main_sphere_r-5, sphere2_mat));
+
+  auto green = make_shared<lambertian>(color(0, 1, 0));
+  objects.add(make_shared<sphere>(point3(
+    0, sec_sphere_r, -750+main_sphere_r+sec_sphere_r+10
+  ), sec_sphere_r, green));
+
+  auto right_sphere_mat = glass;
+  objects.add(make_shared<sphere>(point3(
+    150, sec_sphere_r, -750+main_sphere_r
+  ), sec_sphere_r, right_sphere_mat));
+
+  auto sphere3_mat = make_shared<metal>(color(1, 1, 1), 0.0);
+  objects.add(make_shared<sphere>(point3(300, main_sphere_r, -750), main_sphere_r, sphere3_mat));
+
+  auto blue = make_shared<lambertian>(color(0, 0, 1));
+  objects.add(make_shared<sphere>(point3(
+    300, sec_sphere_r, -750+main_sphere_r+sec_sphere_r+10
+  ), sec_sphere_r, blue));
+
+  return objects;
+}
+
 int main() {
   srand(time(NULL));
 
@@ -138,6 +191,7 @@ int main() {
   auto vfov = 40.0;
   auto aperture = 0.0;
   color background(0, 0, 0);
+  auto lights = make_shared<hittable_list>();
 
   switch (0) {
     case 1:
@@ -162,13 +216,26 @@ int main() {
       lookat = point3(0, 0, 1000);
       vfov = 40.0;
       break;
+
+    case 4:
+      world = eight_balls();
+      aspect_ratio = 16.0 / 9.0;
+      image_width = 800;
+      samples_per_pixel = 20000;
+      background = color(0, 0, 0);
+      lookfrom = point3(0, 200, 0);
+      lookat = point3(0, 65, -1000);
+      vfov = 45.0;
+
+      lights->add(make_shared<sphere>(point3(-1300, 1000, -500), 100, shared_ptr<material>()));
+      break;
   }
 
   // shared_ptr<hittable> lights = make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
   // shared_ptr<hittable> lights = make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>());
 
-  auto lights = make_shared<hittable_list>();
-  lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
+  // auto lights = make_shared<hittable_list>();
+  // lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
   // lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
 
   // -- Camera
