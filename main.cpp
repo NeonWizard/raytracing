@@ -86,6 +86,41 @@ hittable_list cornell_box() {
   return objects;
 }
 
+hittable_list three_balls() {
+  hittable_list objects;
+
+  auto ground = make_shared<lambertian>(color(0.1, 0.1, 0.1));
+  objects.add(make_shared<box>(point3(-1500, 0, -1500), point3(1500, 0, 1500), ground));
+
+
+  const int light_strength = 1800;
+  const int white_light_strength = 3;
+  const int ball_radius = 120;
+  const int secondary_ball_radius = 65;
+
+  auto glass = make_shared<dielectric>(1.5);
+  auto white_light = make_shared<diffuse_light>(color(white_light_strength, white_light_strength, white_light_strength));
+  auto metallic = make_shared<metal>(color(0.8, 0.8, 0.8), 1.0);
+
+  auto red_light = make_shared<diffuse_light>(color(light_strength, 15, 15));
+  objects.add(make_shared<sphere>(point3(500, ball_radius, 200), ball_radius, glass));
+  objects.add(make_shared<sphere>(point3(500, ball_radius, 200), 8, red_light));
+
+  objects.add(make_shared<sphere>(point3(300, secondary_ball_radius, 700), secondary_ball_radius, white_light));
+
+  auto green_light = make_shared<diffuse_light>(color(15, light_strength, 15));
+  objects.add(make_shared<sphere>(point3(0, ball_radius, 200), ball_radius, glass));
+  objects.add(make_shared<sphere>(point3(0, ball_radius, 200), 8, green_light));
+
+  objects.add(make_shared<sphere>(point3(-300, secondary_ball_radius, 700), secondary_ball_radius, white_light));
+
+  auto blue_light = make_shared<diffuse_light>(color(15, 15, light_strength));
+  objects.add(make_shared<sphere>(point3(-500, ball_radius, 200), ball_radius, glass));
+  objects.add(make_shared<sphere>(point3(-500, ball_radius, 200), 8, blue_light));
+
+  return objects;
+}
+
 int main() {
   srand(time(NULL));
 
@@ -105,8 +140,7 @@ int main() {
   color background(0, 0, 0);
 
   switch (0) {
-    default:
-    case 6:
+    case 1:
       world = cornell_box();
       aspect_ratio = 1.0;
       image_width = 600;
@@ -116,6 +150,18 @@ int main() {
       lookat = point3(278, 278, 0);
       vfov = 40.0;
       break;
+
+    default:
+    case 3:
+      world = three_balls();
+      aspect_ratio = 16.0 / 9.0;
+      image_width = 800;
+      samples_per_pixel = 1000;
+      background = color(0, 0, 0);
+      lookfrom = point3(0, 200, -1000);
+      lookat = point3(0, 0, 1000);
+      vfov = 40.0;
+      break;
   }
 
   // shared_ptr<hittable> lights = make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
@@ -123,7 +169,7 @@ int main() {
 
   auto lights = make_shared<hittable_list>();
   lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
-  lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
+  // lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
 
   // -- Camera
   vec3 vup(0, 1, 0);

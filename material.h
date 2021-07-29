@@ -145,8 +145,8 @@ class diffuse_light : public material {
 
 class isotropic : public material {
   public:
-    isotropic(color c) : albedo(make_shared<solid_color>(c)) {}
     isotropic(shared_ptr<texture> a) : albedo(a) {}
+    isotropic(color c) : albedo(make_shared<solid_color>(c)) {}
 
     virtual bool scatter(
       const ray &r_in, const hit_record &rec, scatter_record &srec
