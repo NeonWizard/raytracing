@@ -86,6 +86,36 @@ hittable_list cornell_box() {
   return objects;
 }
 
+hittable_list backlit_balls() {
+  hittable_list objects;
+
+  const int ceiling_height = 300;
+
+  auto ground = make_shared<lambertian>(color(0.1, 0.1, 0.1));
+  objects.add(make_shared<box>(point3(-1000, 0, -1000), point3(0, 0, 0), ground));
+  objects.add(make_shared<box>(point3(-1000, ceiling_height, -1000), point3(0, ceiling_height, 0), ground));
+
+  objects.add(make_shared<box>(point3(-1000, 0, -1000), point3(-1000, ceiling_height, 0), ground));
+  objects.add(make_shared<box>(point3(-1000, 0, -1000), point3(0, ceiling_height, -1000), ground));
+
+  objects.add(make_shared<box>(point3(0, 0, 0), point3(-1000, ceiling_height, 0), ground));
+  objects.add(make_shared<box>(point3(0, 0, 0), point3(0, ceiling_height, -1000), ground));
+
+  const int light_strength = 20;
+
+  auto light = make_shared<diffuse_light>(color(light_strength, light_strength, light_strength));
+  objects.add(make_shared<sphere>(point3(-750, 50, -900), 50, light));
+
+  objects.add(make_shared<sphere>(point3(-400, 60, -700), 60, make_shared<lambertian>(color(.55, .15, .15))));
+  objects.add(make_shared<sphere>(point3(-800, 85, -700), 85, make_shared<lambertian>(color(.15, .15, .45))));
+  objects.add(make_shared<sphere>(point3(-600, 95, -240), 95, make_shared<lambertian>(color(.05, .5, .05))));
+
+  auto glass = make_shared<dielectric>(1.2);
+  objects.add(make_shared<sphere>(point3(-350, 45, -400), 45, glass));
+
+  return objects;
+}
+
 hittable_list three_balls() {
   hittable_list objects;
 
@@ -193,7 +223,7 @@ int main() {
   color background(0, 0, 0);
   auto lights = make_shared<hittable_list>();
 
-  switch (0) {
+  switch (2) {
     case 1:
       world = cornell_box();
       aspect_ratio = 1.0;
@@ -205,7 +235,19 @@ int main() {
       vfov = 40.0;
       break;
 
-    default:
+    case 2:
+      world = backlit_balls();
+      aspect_ratio = 16.0 / 9.0;
+      image_width = 800;
+      samples_per_pixel = 10000;
+      background = color(0, 0, 0);
+      lookfrom = point3(0, 200, 0);
+      lookat = point3(-1000, 100, -1000);
+      vfov = 40.0;
+
+      lights->add(make_shared<sphere>(point3(-750, 50, -900), 50, shared_ptr<material>()));
+      break;
+
     case 3:
       world = three_balls();
       aspect_ratio = 16.0 / 9.0;
@@ -217,11 +259,12 @@ int main() {
       vfov = 40.0;
       break;
 
+    default:
     case 4:
       world = eight_balls();
       aspect_ratio = 16.0 / 9.0;
       image_width = 800;
-      samples_per_pixel = 20000;
+      samples_per_pixel = 100000;
       background = color(0, 0, 0);
       lookfrom = point3(0, 200, 0);
       lookat = point3(0, 65, -1000);
